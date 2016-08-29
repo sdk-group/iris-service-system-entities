@@ -19,14 +19,15 @@ class SystemEntities {
 		source
 	}) {
 		return patchwerk.create(type, params, source)
-			.then(systemObject => patchwerk.save(systemObject));
+			.then(systemObject => patchwerk.save(systemObject))
+			.then(object => object.getSource());
 	}
 	actionRead({
 		type,
 		params,
 		options
 	}) {
-		return patchwerk.get(type, params, options)
+		return patchwerk.get(type, params, options).then(object => object.getSource())
 	}
 	actionDelete({
 		type,
@@ -40,7 +41,8 @@ class SystemEntities {
 		source
 	}) {
 		return patchwerk.create(type, params, source)
-			.then(systemObject => patchwerk.save(systemObject));
+			.then(systemObject => patchwerk.save(systemObject))
+			.then(object => object.getSource());
 	}
 }
 
