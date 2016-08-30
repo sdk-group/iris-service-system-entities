@@ -76,15 +76,28 @@ class SystemEntities {
 				counter: params.service
 			})
 			.then(service => {
-				source.time_description = source.booking_method == 'live' ? service.live_operation_time : service.prebook_operation_time;
+				source.time_description = source.booking_method == 'live' ? service.get('live_operation_time') : service.get('prebook_operation_time');
 				source.expiry = 0; //calc if prebook
 
 				return patchwerk.create(type, source, query);
 			})
 			.then(systemObject => patchwerk.save(systemObject))
 			.then(object => {
+				let sourceData = object.getSource();
+
+				this.emitter.addTask('workstation', {
+					_action: 'organization-data',
+					organization: query.department
+				}).then(org => {
+					this.emitter.emit('ticket.emit.state', {
+						org_merged: org.org_merged,
+						ticket: sourceData,
+						event_name: 'register'
+					});
+				});
+
 				return {
-					ticket: object.getSource(),
+					ticket: sourceData,
 					success: true
 				};
 			})
