@@ -171,11 +171,25 @@ class SystemEntities {
 	}
 	actionCreateOperator(source) {
 		let type = 'Operator';
+		let id = source.id;
+
+		delete source.id;
 
 		return patchwerk.create(type, {
-				counter: '*'
+				counter: id
 			}, source)
 			.then(systemObject => patchwerk.save(systemObject))
+			.then(object => {
+				let params = {
+					role: source.role,
+					id: id,
+					organization: source.organization
+				};
+
+				return patchwerk.get('GlobalMembershipDescription', {})
+					.then(gmd => gmd.add(params, patchwerk)) //@NOTE: this is temporary 
+					.then(gmd => object);
+			})
 			.then(object => {
 				return {
 					schedule: object.getSource(),
