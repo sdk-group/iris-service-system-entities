@@ -174,8 +174,11 @@ class SystemEntities {
 	actionCreateOperator(source) {
 		let type = 'Operator';
 		let id = source.id;
+		source.state = 'inactive';
+		source.password_hash = source.password;
 
 		delete source.id;
+		delete source.password;
 
 		return patchwerk.create(type, source, {
 				counter: id
