@@ -20,7 +20,7 @@ class SystemEntities {
 		params,
 		source
 	}) {
-		return patchwerk.create(type, params, source)
+		return patchwerk.create(type, source, params)
 			.then(systemObject => patchwerk.save(systemObject))
 			.then(object => {
 				return {
@@ -47,7 +47,7 @@ class SystemEntities {
 		params,
 		source
 	}) {
-		return patchwerk.create(type, params, source)
+		return patchwerk.create(type, source, params)
 			.then(systemObject => patchwerk.save(systemObject))
 			.then(object => object.getSource());
 	}
@@ -79,7 +79,7 @@ class SystemEntities {
 				source.time_description = source.booking_method == 'live' ? service.live_operation_time : service.prebook_operation_time;
 				source.expiry = 0; //calc if prebook
 
-				return patchwerk.create(type, query, source);
+				return patchwerk.create(type, source, query);
 			})
 			.then(systemObject => patchwerk.save(systemObject))
 			.then(object => {
@@ -103,9 +103,9 @@ class SystemEntities {
 		source.priority = source.priority || 0;
 
 
-		return patchwerk.create(type, {
+		return patchwerk.create(type, source, {
 				counter: '*'
-			}, source)
+			})
 			.then(systemObject => patchwerk.save(systemObject))
 			.then(object => {
 				return {
@@ -153,10 +153,12 @@ class SystemEntities {
 			};
 		}
 
-		return patchwerk.create(type, {
+		return patchwerk.create(type, source, {
 				counter: '*'
-			}, source)
-			.then(systemObject => patchwerk.save(systemObject))
+			})
+			.then(systemObject => {
+				return patchwerk.save(systemObject);
+			})
 			.then(object => {
 				return {
 					schedule: object.getSource(),
@@ -175,9 +177,9 @@ class SystemEntities {
 
 		delete source.id;
 
-		return patchwerk.create(type, {
+		return patchwerk.create(type, source, {
 				counter: id
-			}, source)
+			})
 			.then(systemObject => patchwerk.save(systemObject))
 			.then(object => {
 				let params = {
@@ -187,7 +189,7 @@ class SystemEntities {
 				};
 
 				return patchwerk.get('GlobalMembershipDescription', {})
-					.then(gmd => gmd.add(params, patchwerk)) //@NOTE: this is temporary 
+					.then(gmd => gmd.add(params, patchwerk)) //@NOTE: this is temporary
 					.then(gmd => object);
 			})
 			.then(object => {
