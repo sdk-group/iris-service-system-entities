@@ -127,6 +127,17 @@ class SystemEntities {
 			})
 			.then(systemObject => patchwerk.save(systemObject))
 			.then(object => {
+				if (counter == '*') return object;
+
+				let params = {
+					id: counter
+				};
+
+				return patchwerk.get('ServiceCounter', {})
+					.then(counter => counter.add(params, patchwerk)) //@NOTE: this is temporary
+					.then(counter => object);
+			})
+			.then(object => {
 				return {
 					service: object.getSource(),
 					success: true
