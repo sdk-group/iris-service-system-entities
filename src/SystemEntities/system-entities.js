@@ -76,7 +76,7 @@ class SystemEntities {
 				counter: params.service
 			})
 			.then(service => {
-				source.time_description = source.booking_method == 'live' ? service.live_operation_time : service.prebook_operation_time;
+				source.time_description = source.booking_method == 'live' ? service.live_operation_time : [source.time_description, source.time_description + service.prebook_operation_time];
 				source.expiry = 0; //calc if prebook
 
 				return patchwerk.create(type, source, query);
