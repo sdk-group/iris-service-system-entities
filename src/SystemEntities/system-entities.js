@@ -116,9 +116,14 @@ class SystemEntities {
 		source.ordering = source.ordering || 1;
 		source.priority = source.priority || 0;
 
+		let id = false;
+		if (source.id) {
+			id = source.id;
+			delete source.id;
+		}
 
 		return patchwerk.create(type, source, {
-				counter: '*'
+				counter: id || '*'
 			})
 			.then(systemObject => patchwerk.save(systemObject))
 			.then(object => {
@@ -267,3 +272,4 @@ class SystemEntities {
 }
 
 module.exports = SystemEntities;
+ies;
