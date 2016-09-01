@@ -116,14 +116,14 @@ class SystemEntities {
 		source.ordering = source.ordering || 1;
 		source.priority = source.priority || 0;
 
-		let id = false;
+		let counter = '*';
 		if (source.id) {
-			id = source.id;
+			counter = source.id;
 			delete source.id;
 		}
 
 		return patchwerk.create(type, source, {
-				counter: id || '*'
+				counter
 			})
 			.then(systemObject => patchwerk.save(systemObject))
 			.then(object => {
