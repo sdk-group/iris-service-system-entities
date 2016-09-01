@@ -76,13 +76,14 @@ class SystemEntities {
 				counter: params.service
 			})
 			.then(service => {
-				source.time_description = source.booking_method == 'live' ? service.get('live_operation_time') : service.get('prebook_operation_time');
+				source.time_description = source.booking_method == 'live' ? service.live_operation_time : service.prebook_operation_time;
 				source.expiry = 0; //calc if prebook
 
 				return patchwerk.create(type, source, query);
 			})
 			.then(systemObject => patchwerk.save(systemObject))
 			.then(object => {
+
 				let sourceData = object.getSource();
 
 				this.emitter.addTask('workstation', {
@@ -220,7 +221,22 @@ class SystemEntities {
 				};
 			});
 	}
+	actionAttchService(params) {
+		let service = params.service;
+		let entity = params.entity;
+		let type = params.type;
 
+		return patchwerk.get(type, {
+				key: operator
+			})
+			.then(object => object.attachService(service))
+			.then(object => {
+				return {
+					entity: object,
+					success: true
+				}
+			})
+	}
 }
 
 module.exports = SystemEntities;
