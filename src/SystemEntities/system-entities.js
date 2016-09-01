@@ -64,7 +64,7 @@ class SystemEntities {
 		if (source.destination) source.locked_fields.push('destination');
 
 		let query = {
-			departmen: source.org_destination,
+			department: source.org_destination,
 			date: source.dedicated_date,
 			counter: '*'
 		};
@@ -236,6 +236,33 @@ class SystemEntities {
 					success: true
 				}
 			})
+	}
+	actionList({
+		department,
+		type,
+		fieldset
+	}) {
+		fieldset = fieldset || [];
+		fieldset.push('@id');
+
+		let query = {
+			department,
+			counter: '*'
+		};
+
+		//@NOTE: Use it!
+		let options = {
+			fieldset
+		};
+
+		return patchwerk.get(type, query, {})
+			.then(collection => _.map(collection, item => _.pick(fieldset)))
+			.then(collection => {
+				return {
+					success: true,
+					list: collection
+				};
+			});
 	}
 }
 
