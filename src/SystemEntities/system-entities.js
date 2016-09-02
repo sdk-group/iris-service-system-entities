@@ -244,13 +244,13 @@ class SystemEntities {
 				};
 			});
 	}
-	actionAttchService(params) {
+	actionAttachService(params) {
 		let service = params.service;
 		let entity = params.entity;
 		let type = params.type;
 
 		return patchwerk.get(type, {
-				key: operator
+				key: entity
 			})
 			.then(object => object.attachService(service))
 			.then(object => patchwerk.save(object))
