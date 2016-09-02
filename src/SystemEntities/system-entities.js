@@ -34,7 +34,8 @@ class SystemEntities {
 		params,
 		options
 	}) {
-		return patchwerk.get(type, params, options).then(object => object.getSource())
+		return patchwerk.get(type, params, options)
+			.then(object => object.getSource())
 	}
 	actionDelete({
 		type,
@@ -87,15 +88,16 @@ class SystemEntities {
 				let sourceData = object.getSource();
 
 				this.emitter.addTask('workstation', {
-					_action: 'organization-data',
-					organization: query.department
-				}).then(org => {
-					this.emitter.emit('ticket.emit.state', {
-						org_merged: org.org_merged,
-						ticket: sourceData,
-						event_name: 'register'
+						_action: 'organization-data',
+						organization: query.department
+					})
+					.then(org => {
+						this.emitter.emit('ticket.emit.state', {
+							org_merged: org.org_merged,
+							ticket: sourceData,
+							event_name: 'register'
+						});
 					});
-				});
 
 				return {
 					ticket: sourceData,
@@ -142,7 +144,8 @@ class SystemEntities {
 					service: object.getSource(),
 					success: true
 				};
-			}).catch(err => {
+			})
+			.catch(err => {
 				return {
 					reason: err.message,
 					success: false
@@ -194,7 +197,8 @@ class SystemEntities {
 					schedule: object.getSource(),
 					success: true
 				};
-			}).catch(err => {
+			})
+			.catch(err => {
 				return {
 					reason: err.message,
 					success: false
@@ -230,7 +234,8 @@ class SystemEntities {
 					schedule: object.getSource(),
 					success: true
 				};
-			}).catch(err => {
+			})
+			.catch(err => {
 				return {
 					reason: err.message,
 					success: false
