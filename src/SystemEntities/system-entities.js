@@ -112,7 +112,7 @@ class SystemEntities {
 			});
 	}
 	actionCreateService(source) {
-		let type = 'Service';
+		let type = 'GlobalService';
 
 		source.prebook_offset = source.prebook_offset || 0;
 		source.ordering = source.ordering || 1;
@@ -123,12 +123,14 @@ class SystemEntities {
 			counter = source.id;
 			delete source.id;
 		}
-
 		return patchwerk.create(type, source, {
 				counter
 			})
-			.then(systemObject => patchwerk.save(systemObject))
+			.then(systemObject => {
+				return patchwerk.save(systemObject)
+			})
 			.then(object => {
+				console.log(object);
 				if (counter == '*') return object;
 
 				let params = {
@@ -251,9 +253,10 @@ class SystemEntities {
 				key: operator
 			})
 			.then(object => object.attachService(service))
+			.then(object => patchwerk.save(object))
 			.then(object => {
 				return {
-					entity: object,
+					entity: object.getSource(),
 					success: true
 				}
 			})
