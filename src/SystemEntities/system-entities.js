@@ -258,6 +258,7 @@ class SystemEntities {
 		type,
 		fieldset
 	}) {
+
 		fieldset = fieldset || [];
 		fieldset.push('@id');
 
@@ -270,9 +271,11 @@ class SystemEntities {
 		let options = {
 			fieldset
 		};
-
-		return patchwerk.get(type, query, {})
-			.then(collection => _.map(collection, item => _.pick(fieldset)))
+		type = type == 'service' ? 'global-service' : type;
+		return patchwerk.get(type, query)
+			.then(collection => {
+				return _.map(collection, item => _.pick(item, fieldset))
+			})
 			.then(collection => {
 				return {
 					success: true,
@@ -283,4 +286,3 @@ class SystemEntities {
 }
 
 module.exports = SystemEntities;
-ies;
