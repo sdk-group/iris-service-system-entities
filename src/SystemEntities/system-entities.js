@@ -74,10 +74,10 @@ class SystemEntities {
 		//booking_date = moment.tz((таймзона org_destination тикета, org_destination = department)).format()
 
 		return patchwerk.get('GlobalService', {
-				counter: params.service
+				key: source.service
 			})
 			.then(service => {
-				source.time_description = source.booking_method == 'live' ? service.live_operation_time : [source.time_description, source.time_description + service.prebook_operation_time];
+				source.time_description = source.booking_method == 'live' ? service.live_operation_time : [parseInt(source.time_description), parseInt(source.time_description) + service.prebook_operation_time];
 				source.expiry = 0; //calc if prebook
 
 				return patchwerk.create(type, source, query);
