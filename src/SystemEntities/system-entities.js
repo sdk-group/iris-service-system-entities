@@ -73,7 +73,7 @@ class SystemEntities {
 		//@TODO: booking date
 		//booking_date = moment.tz((таймзона org_destination тикета, org_destination = department)).format()
 
-		return patchwerk.get('Service', {
+		return patchwerk.get('GlobalService', {
 				counter: params.service
 			})
 			.then(service => {
