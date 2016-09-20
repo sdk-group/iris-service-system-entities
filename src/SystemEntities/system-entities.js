@@ -219,7 +219,7 @@ class SystemEntities {
 		return patchwerk.create(type, source, {
 				counter: id
 			})
-			.then(systemObject => patchwerk.save(systemObject))
+			.then(systemObject => patchwerk.save(systemObject, {}))
 			.then(object => {
 				let params = {
 					role: source.role,
