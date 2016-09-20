@@ -82,7 +82,7 @@ class SystemEntities {
 
 				return patchwerk.create(type, source, query);
 			})
-			.then(systemObject => patchwerk.save(systemObject))
+			.then(systemObject => patchwerk.save(systemObject, {}))
 			.then(object => {
 
 				let sourceData = object.getSource();
