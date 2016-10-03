@@ -1,17 +1,26 @@
 'use strict'
 
 const _ = require('lodash');
+const path = require('path');
 
 const emitter = require("global-queue");
 const patchwerk = require('patchwerk')(emitter);
+
+const discover = function (entity) {
+	let name = _.kebabCase(entity);
+	let dir = name;
+	let module_path = path.join('entities', dir, name);
+
+	return require(module_path);
+};
+
+const Entities = ['service'];
 
 class SystemEntities {
 	constructor() {
 		this.emitter = emitter;
 	}
-	init(config) {
-		console.log('SE init');
-	}
+	init(config) {}
 	launch() {
 		return Promise.resolve(true);
 	}
@@ -130,7 +139,6 @@ class SystemEntities {
 				return patchwerk.save(systemObject)
 			})
 			.then(object => {
-				console.log(object);
 				if (counter == '*') return object;
 
 				let params = {
@@ -228,12 +236,14 @@ class SystemEntities {
 				};
 
 				return patchwerk.get('GlobalMembershipDescription', {})
-					.then(gmd => gmd.add(params, patchwerk)) //@NOTE: this is temporary
+					.then(gmd => {
+						return gmd.add(params, patchwerk);
+					}) //@NOTE: this is temporary
 					.then(gmd => object);
 			})
 			.then(object => {
 				return {
-					schedule: object.getSource(),
+					operator: object.getSource(),
 					success: true
 				};
 			})
