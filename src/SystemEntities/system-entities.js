@@ -92,6 +92,17 @@ class SystemEntities {
 				return patchwerk.create(type, source, query);
 			})
 			.then(systemObject => patchwerk.save(systemObject, {}))
+			.then(ticket => {
+				return patchwerk.create('ticket-lookup', {
+						"@category": 'Ticket',
+						"@type": "Lookup",
+						"content": ticket.id
+					}, {
+						code: ticket.code
+					})
+					.then(lookup => patchwerk.save(lookup, {}))
+					.then(r => ticket);
+			})
 			.then(object => {
 
 				let sourceData = object.getSource();
