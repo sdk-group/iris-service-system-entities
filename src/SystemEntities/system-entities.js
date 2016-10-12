@@ -68,6 +68,8 @@ class SystemEntities {
 		source.called = 0;
 		source.service_count = source.service_count || 1;
 		source.booking_method = source.booking_method || 'live';
+		source.state = source.booking_method == 'live' ? 'registered' : 'booked';
+		source.history = [];
 		source.locked_fields = [];
 
 		if (source.operator) source.locked_fields.push('operator');
