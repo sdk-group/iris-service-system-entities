@@ -70,10 +70,10 @@ class SystemEntities {
 		source.booking_method = source.booking_method || 'live';
 		source.state = source.booking_method == 'live' ? 'registered' : 'booked';
 		source.history = [];
-		source.locked_fields = [];
+		source.locked_fields = {};
 
-		if (source.operator) source.locked_fields.push('operator');
-		if (source.destination) source.locked_fields.push('destination');
+		if (source.operator) source.locked_fields.operator = source.operator;
+		if (source.destination) source.locked_fields.push.destination = source.destination;
 
 		let query = {
 			department: source.org_destination,
@@ -93,7 +93,7 @@ class SystemEntities {
 
 				return patchwerk.create(type, source, query);
 			})
-			.then(systemObject => patchwerk.save(systemObject, {}))
+			.then(systemObject => patchwerk.save(systemObject, query))
 			.then(ticket => {
 				return patchwerk.create('ticket-lookup', {
 						"@category": 'Ticket',
