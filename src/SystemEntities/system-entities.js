@@ -69,8 +69,22 @@ class SystemEntities {
 		let direction = method == 'live' ? 'queue' : 'prebook';
 		source.force = true;
 		source._action = 'ticket-confirm';
-		return this.emitter.addTask(direction, source);
+		return this.emitter.addTask(direction, source)
+			.then((res) => {
+				return {
+					success: res.success,
+					ticket: res.ticket,
+					reason: res.reason
+				};
+			})
+			.catch(err => {
+				return {
+					reason: err.message,
+					success: false
+				};
+			});
 	}
+
 	actionCreateService(source) {
 		let type = 'GlobalService';
 
