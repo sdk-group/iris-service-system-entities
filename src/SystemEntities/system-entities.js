@@ -62,76 +62,14 @@ class SystemEntities {
 			.then(object => object.getSource());
 	}
 	actionCreateTicket(source) {
+		let method = source.booking_method || 'live';
+		if (method == 'prebook')
+			source.time_description = [parseInt(source.time_description)];
 
-		let type = 'ticket';
-
-		source.called = 0;
-		source.service_count = source.service_count || 1;
-		source.booking_method = source.booking_method || 'live';
-		source.state = source.booking_method == 'live' ? 'registered' : 'booked';
-		source.history = [];
-		source.locked_fields = {};
-
-		if (source.operator) source.locked_fields.operator = source.operator;
-		if (source.destination) source.locked_fields.push.destination = source.destination;
-
-		let query = {
-			department: source.org_destination,
-			date: source.dedicated_date,
-			counter: '*'
-		};
-
-		//@TODO: booking date
-		//booking_date = moment.tz((таймзона org_destination тикета, org_destination = department)).format()
-
-		return patchwerk.get('GlobalService', {
-				key: source.service
-			})
-			.then(service => {
-				source.time_description = source.booking_method == 'live' ? service.live_operation_time : [parseInt(source.time_description), parseInt(source.time_description) + service.prebook_operation_time];
-				source.expiry = 0; //calc if prebook
-
-				return patchwerk.create(type, source, query);
-			})
-			.then(systemObject => patchwerk.save(systemObject, query))
-			.then(ticket => {
-				return patchwerk.create('ticket-lookup', {
-						"@category": 'Ticket',
-						"@type": "Lookup",
-						"content": ticket.id
-					}, {
-						code: ticket.code
-					})
-					.then(lookup => patchwerk.save(lookup, {}))
-					.then(r => ticket);
-			})
-			.then(object => {
-
-				let sourceData = object.getSource();
-
-				this.emitter.addTask('workstation', {
-						_action: 'organization-data',
-						organization: query.department
-					})
-					.then(org => {
-						this.emitter.emit('ticket.emit.state', {
-							org_merged: org.org_merged,
-							ticket: sourceData,
-							event_name: 'register'
-						});
-					});
-
-				return {
-					ticket: sourceData,
-					success: true
-				};
-			})
-			.catch(err => {
-				return {
-					reason: err.message,
-					success: false
-				};
-			});
+		let direction = method == 'live' ? 'queue' : 'prebook';
+		source.force = true;
+		source._action = 'ticket-confirm';
+		return this.emitter.addTask(direction, source);
 	}
 	actionCreateService(source) {
 		let type = 'GlobalService';
