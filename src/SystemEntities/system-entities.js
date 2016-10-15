@@ -62,15 +62,16 @@ class SystemEntities {
 			.then(object => object.getSource());
 	}
 	actionCreateTicket(source) {
-
+		console.log("YPO");
 		let type = 'ticket';
 
 		source.called = 0;
-		source.service_count = source.service_count || 1;
+		source.service_count = parseInt(source.service_count) || 1;
 		source.booking_method = source.booking_method || 'live';
 		source.state = source.booking_method == 'live' ? 'registered' : 'booked';
 		source.history = [];
 		source.locked_fields = {};
+		source.priority = source.priority || {};
 
 		if (source.operator) source.locked_fields.operator = source.operator;
 		if (source.destination) source.locked_fields.push.destination = source.destination;
@@ -80,17 +81,77 @@ class SystemEntities {
 			date: source.dedicated_date,
 			counter: '*'
 		};
-
-		//@TODO: booking date
-		//booking_date = moment.tz((таймзона org_destination тикета, org_destination = department)).format()
+		let event_name = (source.booking_method == 'live') ? 'register' : 'book';
+		let org, srv;
 
 		return patchwerk.get('GlobalService', {
 				key: source.service
 			})
 			.then(service => {
-				source.time_description = source.booking_method == 'live' ? service.live_operation_time : [parseInt(source.time_description), parseInt(source.time_description) + service.prebook_operation_time];
+				srv = service;
+				source.time_description = source.booking_method == 'live' ? service.live_operation_time : [parseInt(source.time_description), parseInt(source.time_description) + service.prebook_operation_time * source.service_count];
 				source.expiry = 0; //calc if prebook
 
+				return Promise.props({
+					pre: this.emitter.addTask('workstation', {
+						_action: 'organization-data',
+						organization: query.department
+					}),
+					history: this.emitter.addTask('history', {
+						_action: 'make-entry',
+						subject: {
+							type: 'api'
+						},
+						event_name: event_name
+					}),
+					basic_priority: this.emitter.addTask('ticket', {
+						_action: 'basic-priorities'
+					})
+				});
+			})
+			.then(({
+				pre,
+				history,
+				basic_priority
+			}) => {
+				org = pre[query.department];
+				history.local_time = moment.tz(org.org_merged.org_timezone)
+					.format();
+				source.history = [history];
+				source.booking_date = history.local_time;
+
+				let prior_keys = Object.keys(source.priority);
+				let basic = _.mapValues(_.pick(basic_priority, prior_keys), v => v.params);
+				let local = _.pick(org.org_merged.priority_description || {}, prior_keys);
+				let computed_priority = _.merge(basic, local, source.priority);
+
+				if (srv.priority > 0)
+					computed_priority['service'] = {
+						value: srv.priority
+					};
+
+				source.priority = computed_priority;
+
+				if (!source.label) {
+					let prior_prefix = _.join(_.sortedUniq(_.sortBy(_.map(computed_priority, "prefix"))), '');
+					let prefixes = [prior_prefix, srv.prefix];
+					if (source.booking_method == 'prebook')
+						prefixes.unshift(org.org_merged.prebook_label_prefix);
+					let prefix = _.join(prefixes, '');
+					prefix = !_.isEmpty(prefix) && prefix;
+					source.label = prefix;
+				}
+
+				return this.emitter.addTask('code-registry', {
+					_action: 'make-label',
+					prefix: source.label,
+					office: query.department,
+					date: source.dedicated_date || moment.tz(org.org_merged.org_timezone)
+						.format('YYYY-MM-DD')
+				});
+			})
+			.then((label) => {
+				source.label = label;
 				return patchwerk.create(type, source, query);
 			})
 			.then(systemObject => patchwerk.save(systemObject, query))
@@ -109,17 +170,13 @@ class SystemEntities {
 
 				let sourceData = object.getSource();
 
-				this.emitter.addTask('workstation', {
-						_action: 'organization-data',
-						organization: query.department
-					})
-					.then(org => {
-						this.emitter.emit('ticket.emit.state', {
-							org_merged: org.org_merged,
-							ticket: sourceData,
-							event_name: 'register'
-						});
-					});
+
+				this.emitter.emit('ticket.emit.state', {
+					org_merged: org.org_merged,
+					ticket: sourceData,
+					event_name: 'register'
+				});
+
 
 				return {
 					ticket: sourceData,
@@ -127,12 +184,15 @@ class SystemEntities {
 				};
 			})
 			.catch(err => {
+				console.log(err.stack);
 				return {
 					reason: err.message,
 					success: false
 				};
 			});
 	}
+
+
 	actionCreateService(source) {
 		let type = 'GlobalService';
 
