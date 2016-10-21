@@ -87,7 +87,6 @@ class SystemEntities {
 
 	actionCreateService(source) {
 		let type = 'GlobalService';
-
 		source.prebook_offset = source.prebook_offset || 0;
 		source.ordering = source.ordering || 1;
 		source.priority = source.priority || 0;
@@ -101,7 +100,9 @@ class SystemEntities {
 				counter
 			})
 			.then(systemObject => {
-				return patchwerk.save(systemObject)
+				return patchwerk.save(systemObject, {
+					department: source.department
+				})
 			})
 			.then(object => {
 				if (counter == '*') return object;
@@ -110,7 +111,9 @@ class SystemEntities {
 					id: counter
 				};
 
-				return patchwerk.get('ServiceCounter', {})
+				return patchwerk.get('ServiceCounter', {
+						department: source.department
+					})
 					.then(counter => counter.add(params, patchwerk)) //@NOTE: this is temporary
 					.then(counter => object);
 			})
