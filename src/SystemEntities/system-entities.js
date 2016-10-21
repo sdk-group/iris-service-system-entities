@@ -289,7 +289,7 @@ class SystemEntities {
 			});
 	}
 	actionCreateOperator(source) {
-		let type = 'Operator';
+		let type = 'Employee';
 		let id = source.id;
 		source.state = 'inactive';
 		source.password_hash = source.password;
