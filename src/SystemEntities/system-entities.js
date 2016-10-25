@@ -227,6 +227,8 @@ class SystemEntities {
 		let entity = params.entity;
 		let type = params.type;
 
+		type = type == 'operator' ? 'employee' : type;
+
 		return patchwerk.get(type, {
 				key: entity
 			})
