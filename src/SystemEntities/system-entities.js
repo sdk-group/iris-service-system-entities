@@ -259,7 +259,10 @@ class SystemEntities {
 		let options = {
 			fieldset
 		};
+
 		type = type == 'service' ? 'global-service' : type;
+		type = type == 'operator' ? 'employee' : type;
+
 		return patchwerk.get(type, query)
 			.then(collection => {
 				return _.map(collection, item => _.pick(item, fieldset))
