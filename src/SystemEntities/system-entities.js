@@ -186,8 +186,10 @@ class SystemEntities {
 	actionCreateOperator(source) {
 		let type = 'Employee';
 		let id = source.id;
+
 		source.state = 'inactive';
 		source.password_hash = source.password;
+		source.provides = _.isEmpty(source.provides) ? [] : source.provides;
 
 		delete source.id;
 		delete source.password;
