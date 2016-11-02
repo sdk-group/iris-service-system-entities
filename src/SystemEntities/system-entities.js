@@ -62,6 +62,7 @@ class SystemEntities {
 			.then(object => object.getSource());
 	}
 	actionCreateTicket(source) {
+
 		let method = source.booking_method || 'live';
 		if (method == 'prebook')
 			source.time_description = [parseInt(source.time_description)];
@@ -78,12 +79,14 @@ class SystemEntities {
 				};
 			})
 			.catch(err => {
+				console.log(err.stack);
 				return {
 					reason: err.message,
 					success: false
 				};
 			});
 	}
+
 
 	actionCreateService(source) {
 		let type = 'GlobalService';
