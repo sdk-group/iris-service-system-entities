@@ -1,6 +1,6 @@
 'use strict'
 
-require('iris-build');
+require('iris-builder');
 
 // let gulp = require("gulp");
 // let babel = require("gulp-babel");
